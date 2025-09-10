@@ -3,7 +3,6 @@
 #include <vector>
 #include <optional>
 #include <string>
-#include <map>
 #include <functional>
 #include <cstddef>
 
@@ -14,7 +13,7 @@ namespace wintray
 	{	std::vector<std::byte> icon;
 		std::optional<std::string> description;
 		callback_t click_callback;
-		std::map<std::string, callback_t> buttons;
+		std::vector<std::pair<std::string, callback_t>> buttons;
 	};
 
 	class icon

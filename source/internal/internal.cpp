@@ -1,4 +1,5 @@
 #include "internal.hpp"
+#include <map>
 #include <hard_assert.hpp>
 #include <make_string.hpp>
 #include "utils/utils.hpp"
@@ -120,16 +121,16 @@ namespace wintray::internal
 				case WM_RBUTTONUP:
 					HMENU menu = CreatePopupMenu();
 					ha_assert(menu, MODULE_NAME, "CreatePopupMenu failure.");
-					std::map<int, std::string> registry;
-					int i = 0;
-					for(std::pair button : buttons)
-					{	++i;
+					std::map<int, callback_t> registry;
+					for(int i = 0; i < buttons.size(); ++i)
+					{	int item_index = i + 1;
+						std::pair button = buttons[i];
 						ha_assert
-						(	AppendMenuA(menu, MF_STRING, i, button.first.c_str()),
+						(	AppendMenuA(menu, MF_STRING, item_index, button.first.c_str()),
 							MODULE_NAME,
 							"AppendMenuA failure."
 						);
-						registry[i] = button.first;
+						registry[item_index] = button.second;
 					}
 					if(GetForegroundWindow() != window)
 						ha_assert(SetForegroundWindow(window), MODULE_NAME, "SetForegroundWindow failure.");
@@ -137,7 +138,7 @@ namespace wintray::internal
 					ha_assert(GetCursorPos(&cursor_position), MODULE_NAME, "GetCursorPos failure.");
 					int selection = TrackPopupMenu(menu, TPM_NONOTIFY | TPM_RETURNCMD, cursor_position.x, cursor_position.y, 0, window, NULL);
 					if(selection)
-						buttons[registry[selection]]();
+						registry[selection]();
 					ha_assert(DestroyMenu(menu), MODULE_NAME, "DestroyMenu failure.");
 			}
 		}
